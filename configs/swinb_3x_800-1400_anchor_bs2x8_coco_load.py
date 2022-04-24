@@ -1,11 +1,9 @@
 num_classes = 50
-pretrained = 'models/swin_base_patch4_window7_224.pth'
 # model settings
 model = dict(
     type='CascadeRCNN',
     backbone=dict(
-        type='SwinTransformer',
-        convert_weights=True,
+        type='CustomSwinTransformer',
         embed_dims=128,
         depths=[2, 2, 18, 2],
         num_heads=[4, 8, 16, 32],
@@ -19,8 +17,7 @@ model = dict(
         use_abs_pos_embed=False,
         patch_norm=True,
         out_indices=(0, 1, 2, 3),
-        with_cp=True,
-        init_cfg=dict(type='Pretrained', checkpoint=pretrained)
+        with_cp=False,
     ),
     neck=dict(
         type='FPN',
@@ -236,7 +233,7 @@ datasetA = dict(
     img_prefix='data/fewshotlogodetection/train/images',
     pipeline=train_pipeline)
 data = dict(
-    samples_per_gpu=4,
+    samples_per_gpu=2,
     workers_per_gpu=4,
     train=dict(
         type='RepeatDataset',
@@ -279,12 +276,11 @@ log_config = dict(
 custom_hooks = [dict(type='NumClassCheckHook')]
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-load_from = None
+load_from = 'models/cascade_mask_rcnn_swin_base_patch4_window7.pth'
 resume_from = None
 workflow = [('train', 1)]
-# fp16 = dict(loss_scale=512.)
-fp16 = None
+# fp16 settings
+fp16 = dict(loss_scale=512.)
 optimizer_config = dict(
-    type="OptimizerHook",
-    grad_clip=None
+    grad_clip=dict(max_norm=35, norm_type=2)
 )

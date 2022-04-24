@@ -20,12 +20,21 @@ from mmdet.models import build_detector
 from mmdet.utils import (collect_env, get_root_logger, setup_multi_processes,
                          update_data_root)
 from logdet.models.roi_heads.roi_extractors.gx_context import GcContextRoIExtractor
-from mmdet.models import ROI_EXTRACTORS
+from mmdet.models import ROI_EXTRACTORS, BACKBONES
 from mmdet.datasets.builder import DATASETS
 from logdet.datasets.logdet_mini import LogDetMini
+from logdet.models.backbones.swin import CustomSwinTransformer
+from mmdet.datasets.builder import PIPELINES
+from logdet.datasets.transforms import CustomMixUp, CustomAutoAugment
+from logdet.datasets.mixup_moasic import CustomMosaic
 
+PIPELINES.register_module()
 DATASETS.register_module(LogDetMini)
 ROI_EXTRACTORS.register_module(GcContextRoIExtractor)
+BACKBONES.register_module(CustomSwinTransformer)
+PIPELINES.register_module(CustomMixUp)
+PIPELINES.register_module(CustomMosaic)
+PIPELINES.register_module(CustomAutoAugment)
 
 
 def parse_args():
