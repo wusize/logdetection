@@ -19,6 +19,8 @@ from mmdet.datasets import build_dataset
 from mmdet.models import build_detector
 from mmdet.utils import (collect_env, get_root_logger, setup_multi_processes,
                          update_data_root)
+
+# register customized modules
 from logdet.models.roi_heads.roi_extractors.gx_context import GcContextRoIExtractor
 from mmdet.models import ROI_EXTRACTORS, BACKBONES
 from mmdet.datasets.builder import DATASETS
@@ -28,7 +30,13 @@ from mmdet.datasets.builder import PIPELINES
 from logdet.datasets.transforms import CustomMixUp, CustomAutoAugment
 from logdet.datasets.mixup_moasic import CustomMosaic
 
-PIPELINES.register_module()
+from mmdet.models.builder import LOSSES
+from mmdet.models import HEADS
+from logdet.models.dense_heads.centernet_headv2 import CenterNetHeadv2
+from logdet.models.losses.hm_binary_focal_loss import HeatmapBinaryFocalLoss
+LOSSES.register_module(HeatmapBinaryFocalLoss)
+HEADS.register_module(CenterNetHeadv2)
+
 DATASETS.register_module(LogDetMini)
 ROI_EXTRACTORS.register_module(GcContextRoIExtractor)
 BACKBONES.register_module(CustomSwinTransformer)

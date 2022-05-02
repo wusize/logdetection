@@ -18,14 +18,22 @@ from mmdet.datasets import (build_dataloader, build_dataset,
                             replace_ImageToTensor)
 from mmdet.models import build_detector
 from mmdet.utils import setup_multi_processes, update_data_root
-from logdet import GcContextRoIExtractor
+from logdet.models.roi_heads.roi_extractors.gx_context import GcContextRoIExtractor
 from mmdet.models import ROI_EXTRACTORS, BACKBONES
 from mmdet.datasets.builder import DATASETS
-from logdet import LogDetMini
-from logdet import CustomSwinTransformer
+from logdet.datasets.logdet_mini import LogDetMini
+from logdet.models.backbones.swin import CustomSwinTransformer
+from mmdet.models.builder import LOSSES
+from mmdet.models import HEADS
+from logdet.models.dense_heads.centernet_headv2 import CenterNetHeadv2
+from logdet.models.losses.hm_binary_focal_loss import HeatmapBinaryFocalLoss
+LOSSES.register_module(HeatmapBinaryFocalLoss)
+HEADS.register_module(CenterNetHeadv2)
+
 DATASETS.register_module(LogDetMini)
 ROI_EXTRACTORS.register_module(GcContextRoIExtractor)
 BACKBONES.register_module(CustomSwinTransformer)
+
 
 def parse_args():
     parser = argparse.ArgumentParser(
