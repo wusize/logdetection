@@ -28,8 +28,8 @@ class DisentangleLinear(nn.Module):
 
 class CustomeShared2FCBBoxHead(Shared2FCBBoxHead):
     def __init__(self, num_nulls, *args, **kwargs):
-        assert self.with_cls
         super(CustomeShared2FCBBoxHead, self).__init__(*args, **kwargs)
+        assert self.with_cls
         if self.custom_cls_channels:
             cls_channels = self.loss_cls.get_cls_channels(self.num_classes)
         else:
