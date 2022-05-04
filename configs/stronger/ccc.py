@@ -189,28 +189,96 @@ model = dict(
             nms=dict(type='soft_nms', iou_threshold=0.5),
             max_per_img=100)))
 dataset_type = 'LogDetMini'
+img_norm_cfg = dict(
+    mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
+
+
 albu_train_transforms = [
-    dict(type='RandomRotate90', p=0.5),
-    dict(type='ShiftScaleRotate', rotate_limit=5, p=0.5),
     dict(
         type='OneOf',
         transforms=[
-            dict(type='CLAHE', p=0.5),
-            dict(type='ToGray', p=0.5),
-            dict(type='ChannelShuffle', p=0.5),
-            dict(type='ColorJitter', p=0.5)
+            dict(type='RandomRotate90', p=1),
+            dict(type='ShiftScaleRotate', shift_limit=0.0625,
+                 scale_limit=0.5,
+                 rotate_limit=30,
+                 interpolation=1,
+                 p=1),
+            dict(type='VerticalFlip', p=1),
+            dict(type='RandomSizedBBoxSafeCrop',
+                 height=800,
+                 width=800,
+                 interpolation=1,
+                 p=1),
+            dict(type='Transpose', p=1)
         ],
-        p=1)
+        p=0.5),
+    dict(
+        type='OneOf',
+        transforms=[
+            dict(
+                type='RGBShift',
+                r_shift_limit=10,
+                g_shift_limit=10,
+                b_shift_limit=10,
+                p=1.0),
+            dict(
+                type='HueSaturationValue',
+                hue_shift_limit=20,
+                sat_shift_limit=30,
+                val_shift_limit=20,
+                p=1.0),
+            dict(
+                type='RandomGamma',
+                gamma_limit=(80,120),
+                p=0.1),
+        ],
+        p=0.15),
+    dict(
+        type='OneOf',
+        transforms=[
+                dict(
+                    type='RandomBrightnessContrast',
+                    brightness_limit=[0.1, 0.3],
+                    contrast_limit=[0.1, 0.3],
+                    p=1),
+                dict(
+                    type='RandomGamma',
+                    gamma_limit=(80, 120),
+                    p=0.1),
+        ],
+        p=0.1),
+    dict(type='ToGray', p=0.01),
+    dict(
+        type='OneOf',
+        transforms=[
+            dict(type='Blur', blur_limit=3, p=1.0),
+            dict(type='MedianBlur', blur_limit=3, p=1.0),
+            dict(type='GaussianBlur', blur_limit=7, p=1)
+        ],
+        p=0.1),
+    dict(type='GaussNoise', var_limit=(10.0, 50.0), p=0.1),
+    dict(
+        type='OneOf',
+        transforms=[
+            dict(type='ImageCompression', quality_lower=99, quality_upper=100, p=1),
+            dict(type='JpegCompression', quality_lower=85, quality_upper=95, p=1),
+        ],
+        p=0.15),
 ]
-img_norm_cfg = dict(
-    mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
+# ann_file = 'data/fewshotlogodetection/train/annotations/instances_train2017.json'
+# img_prefix = 'data/fewshotlogodetection/train/images/'
+ann_file = 'data/logdet_data/instances_train2017.json'
+img_prefix = 'data/logdet_data/images/'
+mixup = dict(type='CustomMixUp',
+             prob=0.3,
+             mixup=True,
+             json_path=ann_file,
+             img_path=img_prefix
+             )
+
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='LoadAnnotations', with_bbox=True),
-    dict(
-        type='Resize', img_scale=[(1400, 800), (1400, 1400)], keep_ratio=True),
-    dict(type='RandomFlip', flip_ratio=0.5),
-    dict(type='AutoAugmentZhengYe', autoaug_type='v1'),
     dict(
         type='Albu',
         transforms=albu_train_transforms,
@@ -220,9 +288,18 @@ train_pipeline = [
             label_fields=['gt_labels'],
             min_visibility=0.0,
             filter_lost_elements=True),
-        keymap=dict(img='image', gt_bboxes='bboxes'),
+        keymap={
+            'img': 'image',
+            'gt_masks': 'masks',
+            'gt_bboxes': 'bboxes'
+        },
         update_pad_shape=False,
         skip_img_without_anno=True),
+    mixup,
+    dict(
+        type='Resize', img_scale=[(1400, 800), (1400, 1400)], keep_ratio=True),
+    dict(type='RandomFlip', flip_ratio=0.5),
+    dict(type='CustomAutoAugment', autoaug_type='v2'),
     dict(
         type='Normalize',
         mean=[123.675, 116.28, 103.53],
@@ -253,10 +330,11 @@ test_pipeline = [
         ])
 ]
 
+
 datasetA = dict(
     type=dataset_type,
-    ann_file='data/fewshotlogodetection/train/annotations/instances_train2017.json',
-    img_prefix='data/fewshotlogodetection/train/images',
+    ann_file=ann_file,
+    img_prefix=img_prefix,
     pipeline=train_pipeline)
 data = dict(
     samples_per_gpu=2,
@@ -270,21 +348,21 @@ data = dict(
         )),
     val=dict(
         type=dataset_type,
-        ann_file='data/fewshotlogodetection/val/annotations/instances_val2017.json',
-        img_prefix='data/fewshotlogodetection/val/images',
+        ann_file=ann_file.replace('train', 'val'),
+        img_prefix=img_prefix,
         pipeline=test_pipeline),
     test=dict(
         type=dataset_type,
-        ann_file='data/fewshotlogodetection/val/annotations/instances_val2017.json',
-        img_prefix='data/fewshotlogodetection/val/images',
+        ann_file=ann_file.replace('train', 'val'),
+        img_prefix=img_prefix,
         pipeline=test_pipeline))
 
 evaluation = dict(
     classwise=False,
     interval=12,
     metric='bbox',
-     jsonfile_prefix=
-     './work_dirs/cbswin'
+     # jsonfile_prefix=
+     # './work_dirs/cbswin'
     )
 
 optimizer = dict(type='AdamW', lr=0.0002, betas=(0.9, 0.999), weight_decay=0.05,
@@ -299,7 +377,7 @@ lr_config = dict(
     warmup_ratio=0.001,
     step=[8, 11])
 total_epochs = 12
-checkpoint_config = dict(interval=12, save_optimizer=False)
+checkpoint_config = dict(interval=1, max_keep_ckpts=3)
 log_config = dict(
     interval=10,
     hooks=[
