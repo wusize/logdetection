@@ -3,6 +3,7 @@ model = dict(
     type='CascadeRCNN',
     backbone=dict(
         type='CBSwinTransformer',
+        pretrained='models/swin_base_patch4_window7_224.pth',
         embed_dim=128,
         depths=[2, 2, 18, 2],
         num_heads=[4, 8, 16, 32],
