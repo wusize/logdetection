@@ -25,11 +25,13 @@ from mmdet.datasets.builder import DATASETS
 from logdet.datasets.logdet_mini import LogDetMini
 from logdet.models.backbones.swin import CustomSwinTransformer
 from mmdet.models.builder import LOSSES
-from mmdet.models import HEADS
+from mmdet.models import HEADS, NECKS
 from logdet.models.dense_heads.centernet_headv2 import CenterNetHeadv2
 from logdet.models.losses.hm_binary_focal_loss import HeatmapBinaryFocalLoss
 from logdet.models.roi_heads.customs import CustomeShared2FCBBoxHead
 from logdet.models.backbones.cbswin import CBSwinTransformer
+from logdet.models.necks.cbfpn import CBFPN
+NECKS.register_module(CBFPN)
 BACKBONES.register_module(CBSwinTransformer)
 HEADS.register_module(CustomeShared2FCBBoxHead)
 LOSSES.register_module(HeatmapBinaryFocalLoss)
