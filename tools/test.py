@@ -19,6 +19,7 @@ from mmdet.datasets import (build_dataloader, build_dataset,
 from mmdet.models import build_detector
 from mmdet.utils import setup_multi_processes, update_data_root
 from logdet.models.roi_heads.roi_extractors.gx_context import GcContextRoIExtractor
+from logdet.models.roi_heads.roi_extractors.single_level_roi_extractor import CustomSingleRoIExtractor
 from mmdet.models import ROI_EXTRACTORS, BACKBONES
 from mmdet.datasets.builder import DATASETS
 from logdet.datasets.logdet_mini import LogDetMini
@@ -28,9 +29,12 @@ from mmdet.models import HEADS
 from logdet.models.dense_heads.centernet_headv2 import CenterNetHeadv2
 from logdet.models.losses.hm_binary_focal_loss import HeatmapBinaryFocalLoss
 from logdet.models.roi_heads.customs import CustomeShared2FCBBoxHead
+from logdet.models.backbones.cbswin import CBSwinTransformer
+BACKBONES.register_module(CBSwinTransformer)
 HEADS.register_module(CustomeShared2FCBBoxHead)
 LOSSES.register_module(HeatmapBinaryFocalLoss)
 HEADS.register_module(CenterNetHeadv2)
+ROI_EXTRACTORS.register_module(CustomSingleRoIExtractor)
 
 DATASETS.register_module(LogDetMini)
 ROI_EXTRACTORS.register_module(GcContextRoIExtractor)
