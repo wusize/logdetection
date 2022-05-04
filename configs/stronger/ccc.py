@@ -369,15 +369,14 @@ optimizer = dict(type='AdamW', lr=0.0002, betas=(0.9, 0.999), weight_decay=0.05,
                  paramwise_cfg=dict(custom_keys={'absolute_pos_embed': dict(decay_mult=0.),
                                                  'relative_position_bias_table': dict(decay_mult=0.),
                                                  'norm': dict(decay_mult=0.)}))
-optimizer_config = dict(type='GradientCumulativeOptimizerHook',
-                        grad_clip=None, cumulative_iters=1)
+optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
 lr_config = dict(
     policy='step',
     warmup='linear',
     warmup_iters=100,
     warmup_ratio=0.001,
     step=[8, 11])
-total_epochs = 12
+runner = dict(type='EpochBasedRunner', max_epochs=12)
 checkpoint_config = dict(interval=1, max_keep_ckpts=3)
 log_config = dict(
     interval=10,
