@@ -369,7 +369,8 @@ optimizer = dict(type='AdamW', lr=0.0002, betas=(0.9, 0.999), weight_decay=0.05,
                  paramwise_cfg=dict(custom_keys={'absolute_pos_embed': dict(decay_mult=0.),
                                                  'relative_position_bias_table': dict(decay_mult=0.),
                                                  'norm': dict(decay_mult=0.)}))
-optimizer_config = dict(grad_clip=None, cumulative_iters=1)
+optimizer_config = dict(type='GradientCumulativeOptimizerHook',
+                        grad_clip=None, cumulative_iters=1)
 lr_config = dict(
     policy='step',
     warmup='linear',
@@ -392,4 +393,4 @@ fp16 = dict(loss_scale=512.0)
 #  auto_resume = False
 opencv_num_threads = 0
 mp_start_method = 'fork'
-load_from = 'models/cascade_mask_rcnn_swin_base_patch4_window7.pth'
+load_from = None
