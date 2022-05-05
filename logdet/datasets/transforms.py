@@ -1,9 +1,10 @@
 from numpy import random
-import json
+import os
 import numpy as np
 import cv2
 import random
 from logdet.datasets.autoaug_utils import distort_image_with_autoaugment
+from mmdet.datasets.api_wrappers import COCO
 
 
 class CustomMixUp(object):
@@ -23,51 +24,49 @@ class CustomMixUp(object):
         self.mixup = mixup
         self.json_path = json_path
         self.img_path = img_path
-        with open(json_path, 'r') as json_file:
-            all_labels = json.load(json_file)
-        self.all_labels = all_labels
+        # with open(json_path, 'r') as json_file:
+        #     all_labels = json.load(json_file)
+        # self.all_labels = all_labels
+        print(f'load coco json', flush=True)
+        self.coco_json = COCO(json_path)
+
+        self.CLASSES = [cat['name'] for cat in self.coco_json.cats.values()]
+        self.cat_ids = self.coco_json.get_cat_ids(cat_names=self.CLASSES)
+        self.cat2label = {cat_id: i for i, cat_id in enumerate(self.cat_ids)}
+
+        self.name2ids = {}
+        for k, v in self.coco_json.imgs.items():
+            self.name2ids[v['file_name']] = k
 
     def get_img1(self, name):
-        idx2 = 0
-        for i in range(len(self.all_labels['images'])):
-            if self.all_labels['images'][i]['file_name'] == name:
-                idx2 = self.all_labels['images'][i]['id']
-        img2_fn = self.all_labels['images'][idx2]['file_name']
-        img2_id = self.all_labels['images'][idx2]['id']
-        img2_path = self.img_path + img2_fn
-        img2 = cv2.imread(img2_path)
+        img_id = self.name2ids[name]
+        anns = self.coco_json.imgToAnns[img_id]
+        labels = [np.int64(self.cat2label[annt['category_id']]) for annt in anns]
+        bboxes = [[np.float32(annt['bbox'][0]),
+                   np.float32(annt['bbox'][1]),
+                   np.float32(annt['bbox'][0] + annt['bbox'][2] - 1),
+                   np.float32(annt['bbox'][1] + annt['bbox'][3] - 1)] for annt in anns]
+        img2_path = os.path.join(self.img_path, name)
+        img = cv2.imread(img2_path)
 
-        # get image2 label
-        labels2 = []
-        boxes2 = []
-        for annt in self.all_labels['annotations']:
-            if annt['image_id'] == img2_id:
-                labels2.append(np.int64(annt['category_id']))
-                boxes2.append([np.float32(annt['bbox'][0]),
-                               np.float32(annt['bbox'][1]),
-                               np.float32(annt['bbox'][0] + annt['bbox'][2] - 1),
-                               np.float32(annt['bbox'][1] + annt['bbox'][3] - 1)])
-        return img2, labels2, boxes2
+        return img, labels, bboxes
 
     def get_img2(self):
         # random get image2 for mixup
-        idx2 = np.random.choice(np.arange(len(self.all_labels['images'])))
-        img2_fn = self.all_labels['images'][idx2]['file_name']
-        img2_id = self.all_labels['images'][idx2]['id']
-        img2_path = self.img_path + img2_fn
-        img2 = cv2.imread(img2_path)
+        idx2 = np.random.choice(np.arange(len(self.coco_json.imgToAnns)))
+        img_info = list(self.coco_json.imgs.values())[idx2]
+        name = img_info['file_name']
+        anns = list(self.coco_json.imgToAnns.values())[idx2]
 
-        # get image2 label
-        labels2 = []
-        boxes2 = []
-        for annt in self.all_labels['annotations']:
-            if annt['image_id'] == img2_id:
-                labels2.append(np.int64(annt['category_id']))
-                boxes2.append([np.float32(annt['bbox'][0]),
-                               np.float32(annt['bbox'][1]),
-                               np.float32(annt['bbox'][0] + annt['bbox'][2] - 1),
-                               np.float32(annt['bbox'][1] + annt['bbox'][3] - 1)])
-        return img2, labels2, boxes2
+        labels = [np.int64(self.cat2label[annt['category_id']]) for annt in anns]
+        bboxes = [[np.float32(annt['bbox'][0]),
+                   np.float32(annt['bbox'][1]),
+                   np.float32(annt['bbox'][0] + annt['bbox'][2] - 1),
+                   np.float32(annt['bbox'][1] + annt['bbox'][3] - 1)] for annt in anns]
+        img2_path = os.path.join(self.img_path, name)
+        img = cv2.imread(img2_path)
+
+        return img, labels, bboxes
 
     def __call__(self, results):
         if self.mixup == True:

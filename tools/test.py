@@ -20,7 +20,7 @@ from mmdet.models import build_detector
 from mmdet.utils import setup_multi_processes, update_data_root
 from logdet.models.roi_heads.roi_extractors.gx_context import GcContextRoIExtractor
 from logdet.models.roi_heads.roi_extractors.single_level_roi_extractor import CustomSingleRoIExtractor
-from mmdet.models import ROI_EXTRACTORS, BACKBONES
+from mmdet.models import ROI_EXTRACTORS, BACKBONES, DETECTORS
 from mmdet.datasets.builder import DATASETS
 from logdet.datasets.logdet_mini import LogDetMini
 from logdet.models.backbones.swin import CustomSwinTransformer
@@ -31,6 +31,8 @@ from logdet.models.losses.hm_binary_focal_loss import HeatmapBinaryFocalLoss
 from logdet.models.roi_heads.customs import CustomeShared2FCBBoxHead
 from logdet.models.backbones.cbswin import CBSwinTransformer
 from logdet.models.necks.cbfpn import CBFPN
+from logdet.models.detectors.cb_detector import CBCascadeRCNN
+DETECTORS.register_module(CBCascadeRCNN)
 NECKS.register_module(CBFPN)
 BACKBONES.register_module(CBSwinTransformer)
 HEADS.register_module(CustomeShared2FCBBoxHead)

@@ -1,6 +1,6 @@
 num_classes = 50
 model = dict(
-    type='CascadeRCNN',
+    type='CBCascadeRCNN',
     backbone=dict(
         type='CBSwinTransformer',
         pretrained='models/swin_base_patch4_window7_224.pth',
@@ -192,7 +192,6 @@ model = dict(
 dataset_type = 'LogDetMini'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
-
 
 albu_train_transforms = [
     dict(

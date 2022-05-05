@@ -31,13 +31,15 @@ from mmdet.datasets.builder import PIPELINES
 from logdet.datasets.transforms import CustomMixUp, CustomAutoAugment
 from logdet.datasets.mixup_moasic import CustomMosaic
 
-from mmdet.models.builder import LOSSES, NECKS
+from mmdet.models.builder import LOSSES, NECKS, DETECTORS
 from mmdet.models import HEADS
 from logdet.models.dense_heads.centernet_headv2 import CenterNetHeadv2
 from logdet.models.losses.hm_binary_focal_loss import HeatmapBinaryFocalLoss
 from logdet.models.roi_heads.customs import CustomeShared2FCBBoxHead
 from logdet.models.backbones.cbswin import CBSwinTransformer
 from logdet.models.necks.cbfpn import CBFPN
+from logdet.models.detectors.cb_detector import CBCascadeRCNN
+DETECTORS.register_module(CBCascadeRCNN)
 NECKS.register_module(CBFPN)
 BACKBONES.register_module(CBSwinTransformer)
 LOSSES.register_module(HeatmapBinaryFocalLoss)

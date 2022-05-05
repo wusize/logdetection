@@ -1,6 +1,6 @@
 import json
-filename = 'JSON_coco_albu_auto_mixup_advance_w2_6.bbox.json'
-with open(f'F:\work_dirs\models\{filename}', 'r') as f:
+filename = 'JSON_coco_albu_autov2.bbox.json'
+with open(f'work_dirs\{filename}', 'r') as f:
     data = json.load(f)
 new_data = []
 # for d in data:
