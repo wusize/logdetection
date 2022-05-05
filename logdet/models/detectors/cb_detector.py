@@ -279,7 +279,7 @@ class CBCascadeRCNN(CBTwoStageDetector):
                  test_cfg=None,
                  pretrained=None,
                  init_cfg=None):
-        super(CascadeRCNN, self).__init__(
+        super(CBCascadeRCNN, self).__init__(
             backbone=backbone,
             neck=neck,
             rpn_head=rpn_head,
@@ -308,4 +308,4 @@ class CBCascadeRCNN(CBTwoStageDetector):
         else:
             if isinstance(result, dict):
                 result = result['ensemble']
-        return super(CascadeRCNN, self).show_result(data, result, **kwargs)
+        return super(CBCascadeRCNN, self).show_result(data, result, **kwargs)
