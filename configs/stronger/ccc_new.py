@@ -1,6 +1,6 @@
 num_classes = 50
 model = dict(
-    type='CascadeRCNN',
+    type='CBCascadeRCNN',
     pretrained='models/swin_base_patch4_window7_224.pth',
     backbone=dict(
         type='CBSwinTransformer',
