@@ -268,8 +268,8 @@ img_norm_cfg = dict(
 mixup = dict(type='CustomMixUp',
              prob=0.3,
              mixup=True,
-             ann_file='data/fewshotlogodetection/train/annotations/instances_train2017.json',
-             img_prefix='data/fewshotlogodetection/train/images',
+             json_path='data/fewshotlogodetection/train/annotations/instances_train2017.json',
+             img_path='data/fewshotlogodetection/train/images',
              )
 
 train_pipeline = [
