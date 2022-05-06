@@ -1,6 +1,7 @@
 _base_ = '../swinb_12x_800-1400_anchor_bs2x8_coco_autov2_albu_mixup_advance.py'
 num_classes = 50
 model = dict(
+    _delete_=True,
     type='CBCascadeRCNN',
     pretrained='models/swin_base_patch4_window7_224.pth',
     backbone=dict(
