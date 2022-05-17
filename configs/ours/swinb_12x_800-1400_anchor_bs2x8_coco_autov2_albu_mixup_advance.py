@@ -231,8 +231,14 @@ data = dict(
         )
     ),
     val=dict(
+        type=dataset_type,
+        ann_file='data/fewshotlogodetectionB/val/annotations/instances_val2017.json',
+        img_prefix='data/fewshotlogodetectionB/val/images',
         pipeline=test_pipeline),
     test=dict(
+        type=dataset_type,
+        ann_file='data/fewshotlogodetectionB/val/annotations/instances_val2017.json',
+        img_prefix='data/fewshotlogodetectionB/val/images',
         pipeline=test_pipeline)
 )
 lr_config = dict(
