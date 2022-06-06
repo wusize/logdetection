@@ -1,5 +1,5 @@
 import json
-filename = 'JSON_coco_albu_autov2.bbox.json'
+filename = 'res_agn.bbox.json'
 with open(f'work_dirs\{filename}', 'r') as f:
     data = json.load(f)
 new_data = []
